@@ -1,0 +1,9 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: 251222_jwt
+
+  profiles:
+    active: dev

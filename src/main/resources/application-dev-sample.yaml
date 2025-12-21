@@ -1,0 +1,19 @@
+spring:
+  # https://console.aiven.io/signup
+  datasource:
+    url: jdbc:mysql://mysql-{}.aivencloud.com:13118/defaultdb?ssl-mode=REQUIRED
+    username: avnadmin
+    password: AVNS_{}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+#      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  thymeleaf:
+    cache: false
