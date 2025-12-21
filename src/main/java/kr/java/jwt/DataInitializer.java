@@ -63,4 +63,23 @@ public class DataInitializer implements CommandLineRunner {
         log.info("admin@example.com / admin123 (ID: {})", admin.getId());
         log.info("user@example.com / user123 (ID: {})", user.getId());
     }
+
+    // # 전체 조회
+    // curl http://localhost:8080/api/boards
+    //
+    //# 단건 조회
+    // curl http://localhost:8080/api/boards/1
+    //
+    //# 작성 (임시: authorId 파라미터 필요)
+    // curl -X POST "http://localhost:8080/api/boards?authorId=2" \
+    //  -H "Content-Type: application/json" \
+    //  -d '{"title":"테스트","content":"내용"}'
+    //
+    //# 수정
+    //curl -X PUT "http://localhost:8080/api/boards/4?userId=2" \
+    //  -H "Content-Type: application/json" \
+    //  -d '{"title":"수정됨","content":"수정 내용"}'
+    //
+    //# 삭제
+    //curl -X DELETE "http://localhost:8080/api/boards/4?userId=2"
 }
