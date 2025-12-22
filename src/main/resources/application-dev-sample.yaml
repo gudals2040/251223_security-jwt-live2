@@ -6,6 +6,8 @@ spring:
     password: AVNS_{}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  # DROP TABLE IF EXIST memo
+  # # user_account와 엮여 있으므로 이걸 따로 실행해주시는게...
   jpa:
     hibernate:
       ddl-auto: create

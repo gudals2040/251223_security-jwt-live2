@@ -15,7 +15,7 @@ public class SecurityConfig {
         http
                 // POST, PUT, DELETE 등의 요청은 CSRF 토큰이 없으면 차단 (403 Forbidden)
                 // .csrf(csrf -> csrf.disable())
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable) // 메서드 참조
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll());
         return http.build();
