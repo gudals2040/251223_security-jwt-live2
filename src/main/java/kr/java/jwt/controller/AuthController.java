@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 // 1-8-1
 @RestController
 @RequestMapping("/api/auth")
@@ -34,7 +36,9 @@ public class AuthController {
 
         // 보안 처리 -> Cookie
         ResponseCookie cookie = ResponseCookie
-                .from(JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE)
+                .from(JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE,
+                        // Cookie 값
+                        tokenResponse.accessToken())
                 .httpOnly(true) // JS 로 읽어들일 수 없는 쿠키 -> XSS
                 .secure(false) // true여야함 (https domain)
                 .path("/")
@@ -46,5 +50,20 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok(tokenResponse);
+    }
+
+    // 1-8-3
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
+        // 쿠키 삭제
+        ResponseCookie cookie = ResponseCookie
+                .from(JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE, "") // Cookie Name
+                .httpOnly(true)
+                .secure(false)
+                .path("/")
+                .maxAge(0) // 삭제
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.ok(Map.of("message", "로그아웃 완료"));
     }
 }

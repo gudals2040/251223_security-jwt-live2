@@ -2,7 +2,6 @@ package kr.java.jwt.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -74,13 +73,14 @@ public class JwtService {
     }
 
     // Token -> subject/claim -> ...
+    // getUserIdFromToken
     public Long getUserIdForToken(String token) {
         return Long.parseLong(
                 parseToken(token)
                         .getSubject());
     }
 
-    // 밀리초 -> 초로 나타내기
+    // 밀리초 -> 초로 나타내기 -> Cookie 만료 시간 == 토큰 만료 시간 일치시키기 위함
     public long getAccessTokenExpirySeconds() {
         return accessTokenExpiry / 1000;
     }
