@@ -7,6 +7,7 @@ import kr.java.jwt.model.repository.UserAccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,10 @@ public class DataInitializer implements CommandLineRunner {
     // DROP TABLE IF EXISTS memo;
 
     // import org.springframework.transaction.annotation.Transactional;
+
+    // 1-8-2
+    private final PasswordEncoder passwordEncoder;
+
     @Override
     @Transactional
     public void run(String... args) {
@@ -37,16 +42,19 @@ public class DataInitializer implements CommandLineRunner {
         // "admin123" -> $2a$10$...
         // "user123" -> $2a$10$...
         // 실제로는 PasswordEncoder 사용, 여기서는 임시로 평문 저장
+
         UserAccount admin = UserAccount.create(
                 "admin@example.com",
-                "admin123",  // Security 적용 시 인코딩된 값으로 교체
+//                "admin123",  // Security 적용 시 인코딩된 값으로 교체
+                passwordEncoder.encode("admin123"),
                 "관리자",
                 UserAccount.Role.ADMIN
         );
 
         UserAccount user = UserAccount.create(
                 "user@example.com",
-                "user123",
+//                "user123",
+                passwordEncoder.encode("user123"),
                 "일반사용자",
                 UserAccount.Role.USER
         );
@@ -63,23 +71,4 @@ public class DataInitializer implements CommandLineRunner {
         log.info("admin@example.com / admin123 (ID: {})", admin.getId());
         log.info("user@example.com / user123 (ID: {})", user.getId());
     }
-
-    // # 전체 조회
-    // curl http://localhost:8080/api/boards
-    //
-    //# 단건 조회
-    // curl http://localhost:8080/api/boards/1
-    //
-    //# 작성 (임시: authorId 파라미터 필요)
-    // curl -X POST "http://localhost:8080/api/boards?authorId=2" \
-    //  -H "Content-Type: application/json" \
-    //  -d '{"title":"테스트","content":"내용"}'
-    //
-    //# 수정
-    //curl -X PUT "http://localhost:8080/api/boards/4?userId=2" \
-    //  -H "Content-Type: application/json" \
-    //  -d '{"title":"수정됨","content":"수정 내용"}'
-    //
-    //# 삭제
-    //curl -X DELETE "http://localhost:8080/api/boards/4?userId=2"
 }
