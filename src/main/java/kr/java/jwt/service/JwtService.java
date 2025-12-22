@@ -1,6 +1,8 @@
 package kr.java.jwt.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -58,4 +60,28 @@ public class JwtService {
     }
 
     // 이 토큰이 제대로된 형태의 토큰인가? (검증)
+    public boolean validateToken(String token) {
+        try {
+            parseToken(token); // 파싱할 수 없거나 만료되면 Exception
+            return true;
+        } catch (ExpiredJwtException e) {
+            log.warn("토큰 만료");
+//        } catch (JwtException | IllegalArgumentException e) {
+        } catch (Exception e) {
+            log.warn("토큰 검증 실패 : {}", e.getMessage());
+        }
+        return false;
+    }
+
+    // Token -> subject/claim -> ...
+    public Long getUserIdForToken(String token) {
+        return Long.parseLong(
+                parseToken(token)
+                        .getSubject());
+    }
+
+    // 밀리초 -> 초로 나타내기
+    public long getAccessTokenExpirySeconds() {
+        return accessTokenExpiry / 1000;
+    }
 }
