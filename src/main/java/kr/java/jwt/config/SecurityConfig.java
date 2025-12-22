@@ -1,5 +1,7 @@
 package kr.java.jwt.config;
 
+import kr.java.jwt.exception.CustomAccessDeniedHandler;
+import kr.java.jwt.exception.CustomAuthenticationEntryPoint;
 import kr.java.jwt.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +25,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter; // 생성자 주입
+    // 2-1-2
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    // 2-2-2
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,6 +44,13 @@ public class SecurityConfig {
                 // .formLogin(form -> form.disable())
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+
+                // 2-1-3
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        // 2-2-3
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
 
 //                .authorizeHttpRequests(auth -> auth
 //                        .anyRequest().permitAll());

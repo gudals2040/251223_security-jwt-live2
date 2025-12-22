@@ -51,6 +51,7 @@ public class BoardService {
 
     // 수정
     @Transactional
+//    @PreAuthorize()
     public BoardResponse update(Long id, BoardRequest request, Long userId, boolean isAdmin) {
         Board board = boardRepository.findByIdWithAuthor(id)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다: ID=" + id));
