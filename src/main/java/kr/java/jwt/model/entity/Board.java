@@ -8,6 +8,8 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
+// @Table(name = "user_accounts") // DROP 실패로 인한 이슈 1. 이름 바꾸기
+// 2. user_account를 참고하고 있는 해당 테이블을 DROP
 @Getter @Setter
 @NoArgsConstructor
 public class Board extends BaseEntity {

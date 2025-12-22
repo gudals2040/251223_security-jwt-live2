@@ -37,6 +37,16 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // #1-1
+    // Java -> 자체적으로 JWT를 만들 수 없음.
+    // Java -> jjwt
+    // https://mvnrepository.com/
+    // https://github.com/jwtk/jjwt
+    // https://github.com/jwtk/jjwt?tab=readme-ov-file#gradle
+    implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.13.0'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 }
 
 tasks.named('test') {
