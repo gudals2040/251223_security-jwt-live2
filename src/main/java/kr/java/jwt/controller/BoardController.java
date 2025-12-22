@@ -3,10 +3,12 @@ package kr.java.jwt.controller;
 import jakarta.validation.Valid;
 import kr.java.jwt.model.dto.BoardRequest;
 import kr.java.jwt.model.dto.BoardResponse;
+import kr.java.jwt.model.entity.CustomUserDetails;
 import kr.java.jwt.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,32 +30,47 @@ public class BoardController {
         return ResponseEntity.ok(boardService.findById(id));
     }
 
-    // 임시: authorId를 파라미터로 받음 (Security 적용 후 제거)
+    // 1-9
     @PostMapping
     public ResponseEntity<BoardResponse> create(
             @Valid @RequestBody BoardRequest request,
-            @RequestParam Long authorId) {
-        BoardResponse response = boardService.create(request, authorId);
+//            @RequestParam Long authorId
+            @AuthenticationPrincipal CustomUserDetails userDetails // <- JwtAuthenticationFilter
+            ) {
+//        BoardResponse response = boardService.create(request, authorId);
+        BoardResponse response = boardService.create(request, userDetails.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // 임시: userId를 파라미터로 받음
     @PutMapping("/{id}")
     public ResponseEntity<BoardResponse> update(
             @PathVariable Long id,
             @Valid @RequestBody BoardRequest request,
-            @RequestParam Long userId,
-            @RequestParam(defaultValue = "false") boolean isAdmin) {
-        return ResponseEntity.ok(boardService.update(id, request, userId, isAdmin));
+//            @RequestParam Long userId,
+//            @RequestParam(defaultValue = "false") boolean isAdmin
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+//        return ResponseEntity.ok(boardService.update(id, request, userId, isAdmin));
+        boolean isAdmin = hasAdminRole(userDetails);
+        return ResponseEntity.ok(boardService.update(id, request,
+                userDetails.getId(), isAdmin));
     }
 
-    // 임시: userId를 파라미터로 받음
+    private boolean hasAdminRole(CustomUserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .anyMatch(a ->
+                        a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
-            @RequestParam Long userId,
-            @RequestParam(defaultValue = "false") boolean isAdmin) {
-        boardService.delete(id, userId, isAdmin);
+//            @RequestParam Long userId,
+//            @RequestParam(defaultValue = "false") boolean isAdmin
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+//        boardService.delete(id, userId, isAdmin);
+        boardService.delete(id, customUserDetails.getId(), hasAdminRole(customUserDetails));
         return ResponseEntity.noContent().build();
     }
 }
