@@ -19,3 +19,13 @@ spring:
 
   thymeleaf:
     cache: false
+
+# 1-2
+# JWT 설정값
+# 1. JWT로 값을 변환 -> 기준이 될 비밀키
+# 2. 만료일시 -> 몇분, 몇시간 뒤에 만료될지 Mill초 -> 초 * 1000
+jwt:
+  # jwt secret key generator -> 예) https://jwtsecrets.com/
+  # openssl rand -hex 64
+  secret: {}
+  access-token-expiry: 900000 # 1000 * 60 (1초) * 15 => 15분
