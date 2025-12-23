@@ -19,6 +19,9 @@ public class AuthService {
     private final UserAccountRepository userAccountRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    // 3-7-1
+    private final RefreshTokenService refreshTokenService;
+    // -> RefreshTokenRepository, Entity 등을 구현해서 대체 가능
 
     // import org.springframework.transaction.annotation.Transactional;
     @Transactional(readOnly = true) // login
@@ -36,11 +39,53 @@ public class AuthService {
         String accessToken = jwtService.generateAccessToken(
                 user.getId(), user.getEmail(), user.getRole().name()
         );
+        // 3-7-2
+        // RefreshToken 생성
+        String refreshToken = jwtService.generateRefreshToken(user.getId());
+        refreshTokenService.save(user.getId(), refreshToken);
 
         log.info("로그인 성공: {}", user.getEmail());
 
         return new TokenResponse(
                 accessToken,
+                // 3-7-3
+                refreshToken,
+                "Bearer",
+                jwtService.getAccessTokenExpirySeconds()
+        );
+    }
+
+    // 3-7-4
+    @Transactional(readOnly = true)
+    public TokenResponse refresh(String refreshToken) {
+        if (!jwtService.validateToken(refreshToken)) {
+            // 문제가 있으면
+            throw new BadCredentialsException("유효하지 않은 Refresh Token");
+            // 토큰 검증/데이터 추출은 같은 알고리즘과 같은 비밀키를 쓴다면 공유
+        }
+
+        Long userId = jwtService.getUserIdFromToken(refreshToken);
+
+        if (!refreshTokenService.validate(userId, refreshToken)) {
+            throw new BadCredentialsException("Refresh Token 불일치 또는 만료");
+        }
+
+        UserAccount user = userAccountRepository.findById(userId)
+                .orElseThrow(() -> new BadCredentialsException("사용자 없음"));
+
+        // Refresh Token 갱신 + Access Token도 같이 갱신
+        String newAccessToken = jwtService.generateAccessToken(
+                user.getId(), user.getEmail(), user.getRole().name()
+        );
+        String newRefreshToken = jwtService.generateRefreshToken(user.getId());
+
+        refreshTokenService.rotate(userId, newRefreshToken);
+
+        log.info("토큰 갱신: userId={}", userId);
+
+        return new TokenResponse(
+                newAccessToken,
+                newRefreshToken,
                 "Bearer",
                 jwtService.getAccessTokenExpirySeconds()
         );

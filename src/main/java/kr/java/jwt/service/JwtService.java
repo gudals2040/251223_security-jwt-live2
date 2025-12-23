@@ -67,6 +67,17 @@ public class JwtService { // JwtUtil -> @Component <- @Value
                 .compact(); // 토큰화
     }
 
+    // 1. Time To Live -> Redis -> 특정 데이터가 유지되는 기간을 설정 (밀리초)
+    // 3-4-4
+    public long getRefreshTokenExpiryMillis() {
+        return refreshTokenExpiry;
+    }
+    // 2. Refresh Token (Client - Cookie) -> 유지되는 기간 (초)
+    // 3-4-5
+    public long getRefreshTokenExpirySeconds() {
+        return refreshTokenExpiry / 1000;
+    }
+
     // 이 토큰의 값은 무엇인가? (해석, 파싱)
     public Claims parseToken(String token) {
         return Jwts.parser()
