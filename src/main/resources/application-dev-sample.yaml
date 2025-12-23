@@ -20,6 +20,12 @@ spring:
   thymeleaf:
     cache: false
 
+  # 3-2
+  # https://console.aiven.io/login
+  data:
+    redis:
+      url: rediss://default:AVNS_{}
+
 # 1-2
 # JWT 설정값
 # 1. JWT로 값을 변환 -> 기준이 될 비밀키
@@ -29,3 +35,5 @@ jwt:
   # openssl rand -hex 64
   secret: {}
   access-token-expiry: 900000 # 1000 * 60 (1초) * 15 => 15분
+  # 3-2-2
+  refresh-token-expiry: 604800000 # 1000 * 60 * 60 * 24 (1일) * 7 => 7일
