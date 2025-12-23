@@ -27,6 +27,26 @@ public class AuthController {
     private final AuthService authService;
     private final JwtService jwtService;
 
+    // 3-8-1
+    public static final String REFRESH_TOKEN_COOKIE = "refreshToken";
+
+    // 3-8-2
+    private void addCookie(
+            HttpServletResponse response,
+            String name, // key
+            String value, // 문자열
+            long maxAge // 초 단위 (밀리초 X)
+    ) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(true) // https. localhost면 괜찮음
+                .path("/") // 같은 도메인이면
+                .maxAge(maxAge) // 초 단위
+                .sameSite("Lax")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(
             @Valid @RequestBody LoginRequest request,
