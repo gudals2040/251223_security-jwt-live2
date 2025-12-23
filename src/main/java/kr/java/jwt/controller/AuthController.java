@@ -5,16 +5,16 @@ import jakarta.validation.Valid;
 import kr.java.jwt.filter.JwtAuthenticationFilter;
 import kr.java.jwt.model.dto.LoginRequest;
 import kr.java.jwt.model.dto.TokenResponse;
+import kr.java.jwt.model.entity.CustomUserDetails;
 import kr.java.jwt.service.AuthService;
 import kr.java.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -69,36 +69,61 @@ public class AuthController {
 
         TokenResponse tokenResponse = authService.login(request);
 
-        // 보안 처리 -> Cookie
-        ResponseCookie cookie = ResponseCookie
-                .from(JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE,
-                        // Cookie 값
-                        tokenResponse.accessToken())
-                .httpOnly(true) // JS 로 읽어들일 수 없는 쿠키 -> XSS
-                .secure(false) // true여야함 (https domain)
-                .path("/")
-                .maxAge(jwtService.getAccessTokenExpirySeconds())
-                .sameSite("Lax")
-                // 같은 도메인에서 사용 가능 but a tag, link tag 같이 유저의 액션을 통해서 이동했을때만 cookie 전송됨
-                .build();
+        // 3-8-4
+        addCookie(response,
+                JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE,
+                tokenResponse.accessToken(),
+                jwtService.getAccessTokenExpirySeconds());
+        addCookie(response,
+                JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE,
+                tokenResponse.refreshToken(),
+                jwtService.getRefreshTokenExpirySeconds());
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        return ResponseEntity.ok(tokenResponse);
+    }
+
+    // 3-8-5
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refresh(
+            @CookieValue(name = REFRESH_TOKEN_COOKIE, required = false) String cookieToken,
+            // 별도 메서드로 안하고 jwtFilter에서 자동갱신시켜도 됨 (jwt social login 예시에서 자동갱신으로 작성해놓을게요)
+            // Cookie가 없는 상황에서도 쓸 예정
+            @RequestBody(required = false) Map<String, String> body,
+            HttpServletResponse response) {
+
+        String refreshToken = cookieToken; // 없을 수도
+        if (refreshToken == null && body != null) { // json body로 갱신할 토큰을 전달한 상황
+            refreshToken = body.get("refreshToken");
+        }
+        if (refreshToken == null) {
+            throw new BadCredentialsException("Refresh Token 필요");
+        }
+
+        TokenResponse tokenResponse = authService.refresh(refreshToken);
+
+        addCookie(response,
+                JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE,
+                tokenResponse.accessToken(),
+                jwtService.getAccessTokenExpirySeconds());
+        addCookie(response,
+                JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE,
+                tokenResponse.refreshToken(),
+                jwtService.getRefreshTokenExpirySeconds());
 
         return ResponseEntity.ok(tokenResponse);
     }
 
     // 1-8-3
+    // 3-8-6
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
-        // 쿠키 삭제
-        ResponseCookie cookie = ResponseCookie
-                .from(JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE, "") // Cookie Name
-                .httpOnly(true)
-                .secure(false)
-                .path("/")
-                .maxAge(0) // 삭제
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    public ResponseEntity<Map<String, String>> logout(
+            HttpServletResponse response,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        authService.logout(userDetails.getId());
+
+        removeCookie(response, JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE);
+        removeCookie(response, REFRESH_TOKEN_COOKIE);
+
         return ResponseEntity.ok(Map.of("message", "로그아웃 완료"));
     }
 }

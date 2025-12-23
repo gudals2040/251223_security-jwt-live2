@@ -58,7 +58,10 @@ public class SecurityConfig {
                         // 테스트용 인덱스 페이지
                         .requestMatchers("/").permitAll()
                         // 인증 API
-                        .requestMatchers("/api/auth/login").permitAll()
+                        // 3-9
+//                        .requestMatchers("/api/auth/login").permitAll()
+//                        .requestMatchers("/api/auth/*").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
                         // 게시글 조회
                         .requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
                         // 나머지는 인증이 필요
