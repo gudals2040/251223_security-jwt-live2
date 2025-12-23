@@ -20,14 +20,19 @@ public class JwtService { // JwtUtil -> @Component <- @Value
 
     private final SecretKey secretKey; // 비밀키 (클래스-객체)
     private final long accessTokenExpiry; // long
+    // 3-4-1
+    private final long refreshTokenExpiry;
 
+    // 3-4-2
     public JwtService(
             // import org.springframework.beans.factory.annotation.Value;
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.access-token-expiry}") long accessTokenExpiry
+            @Value("${jwt.access-token-expiry}") long accessTokenExpiry,
+            @Value("${jwt.refresh-token-expiry}") long refreshTokenExpiry
     ) {
         this.accessTokenExpiry = accessTokenExpiry; // long <- string
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.refreshTokenExpiry = refreshTokenExpiry;
     }
 
     // 토큰 생성
@@ -42,6 +47,21 @@ public class JwtService { // JwtUtil -> @Component <- @Value
                 // 발행 기준
                 .issuedAt(now) // 발행된 시간
                 .expiration(new Date(now.getTime() + accessTokenExpiry)) // 15분 후 만료되는 시간
+                .id(UUID.randomUUID().toString()) // 식별
+                .signWith(secretKey) // 변환
+                .compact(); // 토큰화
+    }
+
+    // 3-4-3
+    // refresh token -> generate
+    public String generateRefreshToken(Long userId) { // id만 있어서 갱신할 때 없는 유저에 대해서 필터링만...
+        // import java.util.Date;
+        Date now = new Date();
+        return Jwts.builder()
+                .subject(String.valueOf(userId)) // 토큰 주인에 대한 정보
+                // 발행 기준
+                .issuedAt(now) // 발행된 시간
+                .expiration(new Date(now.getTime() + refreshTokenExpiry)) // 7일 후 만료되는 시간
                 .id(UUID.randomUUID().toString()) // 식별
                 .signWith(secretKey) // 변환
                 .compact(); // 토큰화
