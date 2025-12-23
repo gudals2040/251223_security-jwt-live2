@@ -37,12 +37,15 @@ public class AuthController {
             String value, // 문자열
             long maxAge // 초 단위 (밀리초 X)
     ) {
+        // 3-8-3
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
                 .secure(true) // https. localhost면 괜찮음
                 .path("/") // 같은 도메인이면
                 .maxAge(maxAge) // 초 단위
-                .sameSite("Lax")
+                // 4-3-1
+//                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
@@ -57,7 +60,9 @@ public class AuthController {
                 .secure(true) // https. localhost면 괜찮음
                 .path("/") // 같은 도메인이면
                 .maxAge(0) // 초 단위
-                .sameSite("Lax")
+                // 4-3-2
+//                .sameSite("Lax")
+                .sameSite("None")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
