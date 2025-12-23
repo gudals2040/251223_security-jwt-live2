@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(authenticationEntryPoint)
                         // 2-2-3
-                        .accessDeniedHandler(accessDeniedHandler)
+                        .accessDeniedHandler(accessDeniedHandler) // 원래는 돌아감
                 )
 
 //                .authorizeHttpRequests(auth -> auth

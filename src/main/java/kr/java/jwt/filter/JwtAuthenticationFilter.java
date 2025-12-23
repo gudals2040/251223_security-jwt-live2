@@ -22,6 +22,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 @Slf4j
+// JwtFilter, JwtAuthorizationFilter ... (이름은...)
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
@@ -34,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 2. 토큰 검증 -> 인증 처리
         if (token != null && jwtService.validateToken(token)) {
             try {
-                Long userId = jwtService.getUserIdForToken(token); // token -> userId
+                Long userId = jwtService.getUserIdFromToken(token); // token -> userId
                 UserDetails userDetails = userDetailsService.loadUserById(userId); // DB - User
 
                 // UserDetailsService <- Spring Security

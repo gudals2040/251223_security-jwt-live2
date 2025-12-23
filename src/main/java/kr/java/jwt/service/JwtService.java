@@ -16,7 +16,7 @@ import java.util.UUID;
 // 1-3
 @Service
 @Slf4j // log (sout과 유사)
-public class JwtService {
+public class JwtService { // JwtUtil -> @Component <- @Value
 
     private final SecretKey secretKey; // 비밀키 (클래스-객체)
     private final long accessTokenExpiry; // long
@@ -74,7 +74,7 @@ public class JwtService {
 
     // Token -> subject/claim -> ...
     // getUserIdFromToken
-    public Long getUserIdForToken(String token) {
+    public Long getUserIdFromToken(String token) {
         return Long.parseLong(
                 parseToken(token)
                         .getSubject());
