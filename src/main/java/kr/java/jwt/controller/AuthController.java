@@ -75,7 +75,7 @@ public class AuthController {
                 tokenResponse.accessToken(),
                 jwtService.getAccessTokenExpirySeconds());
         addCookie(response,
-                JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE,
+                REFRESH_TOKEN_COOKIE,
                 tokenResponse.refreshToken(),
                 jwtService.getRefreshTokenExpirySeconds());
 
@@ -106,7 +106,7 @@ public class AuthController {
                 tokenResponse.accessToken(),
                 jwtService.getAccessTokenExpirySeconds());
         addCookie(response,
-                JwtAuthenticationFilter.ACCESS_TOKEN_COOKIE,
+                REFRESH_TOKEN_COOKIE,
                 tokenResponse.refreshToken(),
                 jwtService.getRefreshTokenExpirySeconds());
 
@@ -125,5 +125,13 @@ public class AuthController {
         removeCookie(response, REFRESH_TOKEN_COOKIE);
 
         return ResponseEntity.ok(Map.of("message", "로그아웃 완료"));
+    }
+
+    // 3-10
+    @GetMapping("/inactive")
+    public void inactive(
+            @RequestParam Long userId
+    ) {
+        authService.logout(userId);
     }
 }

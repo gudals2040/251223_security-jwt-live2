@@ -60,8 +60,8 @@ public class SecurityConfig {
                         // 인증 API
                         // 3-9
 //                        .requestMatchers("/api/auth/login").permitAll()
-//                        .requestMatchers("/api/auth/*").permitAll()
-                        .requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+//                        .requestMatchers("/api/auth/login", "/api/auth/refresh").permitAll()
                         // 게시글 조회
                         .requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
                         // 나머지는 인증이 필요
