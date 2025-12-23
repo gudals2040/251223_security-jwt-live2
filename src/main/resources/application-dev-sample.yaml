@@ -37,3 +37,11 @@ jwt:
   access-token-expiry: 900000 # 1000 * 60 (1초) * 15 => 15분
   # 3-2-2
   refresh-token-expiry: 604800000 # 1000 * 60 * 60 * 24 (1일) * 7 => 7일
+
+# 5-2 (필수 아님)
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    #    enabled: false
+    path: /swagger-ui.html # 수정 가능

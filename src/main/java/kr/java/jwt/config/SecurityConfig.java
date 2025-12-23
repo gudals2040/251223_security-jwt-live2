@@ -63,6 +63,10 @@ public class SecurityConfig {
 //                .authorizeHttpRequests(auth -> auth
 //                        .anyRequest().permitAll());
                 .authorizeHttpRequests(auth -> auth
+                        // 5-3
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html",
+                                "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+
                         // 테스트용 인덱스 페이지
                         .requestMatchers("/").permitAll()
                         // 인증 API

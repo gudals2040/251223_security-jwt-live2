@@ -65,7 +65,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     // 토큰 추출
     // -> cookie.
     // -> header -> Authorization - Bearer
+    // Header를 우선으로 검사하고, 없을경우 cookie로 검색
     private String extractToken(HttpServletRequest request) {
+        // 5-5
+        // request <- header.
+        String authHeader = request.getHeader("Authorization"); // header name
+        if (authHeader != null && authHeader.startsWith("Bearer ")) { // header value -> 'Bearer '
+            // 토큰이 비어있지 않고 Bearer(전달자) 라는 걸로 시작한다면
+            // Bearer : token 사용해서 접근하겠다는 약속 (' '까지 7글자)
+            return authHeader.substring(7); // Bearer 123456 -> 123456
+        }
+
+        // 없으면 검사하는 파트
         // import jakarta.servlet.http.Cookie;
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
