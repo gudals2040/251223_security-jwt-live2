@@ -16,6 +16,11 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 // 1-5
 @Configuration
@@ -33,6 +38,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 4-1-2
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 // POST, PUT, DELETE 등의 요청은 CSRF 토큰이 없으면 차단 (403 Forbidden)
                 // .csrf(csrf -> csrf.disable())
                 .csrf(AbstractHttpConfigurer::disable) // 메서드 참조
@@ -76,5 +84,30 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    // cors
+    // 4-1-1
+    @Bean // (외부에 @Configuration으로 둬도 무방)
+    // import org.springframework.web.cors.CorsConfigurationSource;
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*", // http 프로토콜 + localhost 도메인 + 모든 포트를 허용
+                "http://127.0.0.1:*"
+                // 환경설정? -> @Value 주입 후 넣으면 됨
+        ));
+//        config.setAllowedMethods(List.of("*"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true); // cookie 통한 인증 정보를 받아주겠다
+//        config.setMaxAge(3600L); // 1시간
+
+        // import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+//        source.registerCorsConfiguration("/api/**", config);
+        return source;
     }
 }
