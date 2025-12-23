@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 // 3-5
 @Service
 @RequiredArgsConstructor
@@ -20,8 +22,9 @@ public class RefreshTokenService {
         redisTemplate.opsForValue().set(
                 PREFIX + userId, // key
                 refreshToken, // value
-                jwtService.getRefreshTokenExpiryMillis() // 얼마나 유지시킬지 (없으면 영구보관)
+                jwtService.getRefreshTokenExpiryMillis(), // 얼마나 유지시킬지 (없으면 영구보관)
                 // Time To Live
+                TimeUnit.MILLISECONDS
         );
     }
 
