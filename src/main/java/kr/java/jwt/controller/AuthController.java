@@ -47,6 +47,21 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
+    // 3-8-3
+    private void removeCookie(
+            HttpServletResponse response,
+            String name
+    ) {
+        ResponseCookie cookie = ResponseCookie.from(name, "")
+                .httpOnly(true)
+                .secure(true) // https. localhost면 괜찮음
+                .path("/") // 같은 도메인이면
+                .maxAge(0) // 초 단위
+                .sameSite("Lax")
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+    }
+
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(
             @Valid @RequestBody LoginRequest request,

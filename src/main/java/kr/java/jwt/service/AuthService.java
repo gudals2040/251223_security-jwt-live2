@@ -88,6 +88,9 @@ public class AuthService {
                 newRefreshToken,
                 "Bearer",
                 jwtService.getAccessTokenExpirySeconds()
+                // jwtService.getRefreshToken...로 안바꿈?
+                // -> TokenResponse -> expiresIn => AccessToken Expiry...
+                // 추가하셔도 됨 (accessExpiry, Refresh Expiry로 각자 하면...)
         );
     }
 }
